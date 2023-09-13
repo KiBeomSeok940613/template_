@@ -1,25 +1,77 @@
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes } from "react-router-dom";
+import Globalstyle from "./components/Globalstyle";
+ import Main from "./pages/Main";
+import Aside from "./components/Aside";
+import { ThemeProvider } from "styled-components";
+import { useState } from "react";
+import Nav from "./components/Nav";
+import store from "./store";
+import { Provider, useSelector } from "react-redux";
+import Mnav from "./components/Mnav";
+import Member from "./pages/Member";
+import Login from "./pages/Login";
+
+
+
+
 
 function App() {
+  
+
+  
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <>
+    <Provider store={store}>
+      {/* 전역변수로 */}
+      <Inner />
+   </Provider>
+    {/* Routes 밖에 쓰면 고정됨 */}
+
+    </>
   );
+}
+function Inner(){
+  const light = {
+    colors: {
+      Primary : "hotpink",
+      Secondary : "oranged",
+      BgColor: "#e8e8e8",
+      Color : "#000",
+      ContentBg: "#fff"
+    }
+  }
+  const dark = {
+    colors : {
+      Primary : "#272929",
+      Secondary: "#e9e9e9",
+      BgColor: "#e3e3e3",
+      Color : "#e9e9e9",
+      ContentBg: "#272929"
+  
+  
+    }
+  }
+  
+  const theme = useSelector(state => state.dark)
+  const DarkMode = theme === "light" ? light : dark;
+  console.log(theme)
+  
+  return(
+  <ThemeProvider theme={DarkMode}>
+        <Globalstyle />
+          <Nav />
+           <Aside />
+             <Routes>
+                 <Route path="/" element={<Main />}></Route>
+                 <Route path="/member" element={<Member />}></Route>
+                 <Route path="/login" element={<Login />}></Route>
+    
+            {/* / 후 뒤에 주소가 붙으면 ...에 주소를 보여주세요 */}
+             {/* 홈페이지 딱 열었을때 먼저 보여줄 페이지"/" " */}
+            </Routes>
+    </ThemeProvider>
+  )
 }
 
 export default App;
