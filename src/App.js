@@ -10,6 +10,7 @@ import { Provider, useSelector } from "react-redux";
 import Mnav from "./components/Mnav";
 import Member from "./pages/Member";
 import Login from "./pages/Login";
+import Example from "./example/Example";
 
 
 
@@ -63,7 +64,8 @@ function Inner(){
           <Nav />
            <Aside />
              <Routes>
-                 <Route path="/" element={<Main />}></Route>
+                 {/* <Route path="/" element={<Main />}></Route> */}
+                 <Route path="/" element={<Example />}></Route>
                  <Route path="/member" element={<Member />}></Route>
                  <Route path="/login" element={<Login />}></Route>
     
