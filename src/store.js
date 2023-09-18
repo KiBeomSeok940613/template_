@@ -1,17 +1,39 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { act } from "react-dom/test-utils";
 
 // 더 만드려면  let createslice 를 추가로 만들어야함
 let user =createSlice({
         name: "user",
-        initialState : "기범석",
+        initialState :{
+             loggedIn : false,
+             data : null,
+             uid : null           
+        },
         reducers : {     
-            changeName() {
-                return "기기범범석석"
-            }
-            // 이름을 바꾸고싶을때 사용
+            logIn: (state, action) => {
+                state.loggedIn = true;
+                state.uid = action.payload;
+
+            },
+            loggedIn: (state, action) =>{
+                state.loggedIn = true;
+                state.data = action.payload;
+
+            },
+            logOut : (state) => {
+                state.loggedIn = false;
+                state.data = null;
+                state.uid = null;
+            },
+           
         }
+        // 
+        // true 값은 유지해준다
+        // payload 안에 정보가 모두 들어감
+        // 데이터를 넘기는코드는 action
         
         // state 기본값
+         // 이름을 바꾸고싶을때 사용
 
 })
 let user2 = createSlice ({
@@ -28,7 +50,7 @@ let dark = createSlice({
     }
 })
 
-export const {changeName} = user.actions;
+export const {logIn, logOut, loggedIn} = user.actions;
 // 바꾸고 싶은 이름
 export const {toggleTheme} = dark.actions;
 
@@ -38,7 +60,6 @@ export default configureStore({
         user : user.reducer,
         user2 : user2.reducer,
         dark : dark.reducer,
-
-        
+     
     }
 })

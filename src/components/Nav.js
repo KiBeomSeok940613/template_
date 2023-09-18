@@ -1,9 +1,10 @@
 import { faArrowRightFromBracket, faChevronDown, faLock, faRotate, faUser,  } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
-
+import Main from '../pages/Main'
 
 
 
@@ -139,7 +140,9 @@ const MsubmenuMember = styled(NavMember)`
 // 스타일 css 가져오고 싶을때 소괄호 사용
 
 
-function Nav() {
+function Nav({userState}) {
+    // props 로 받는거라 중괄호를 꼭 사용했어야 했음
+    // const userState = useSelector(state => state.user);
     const [isHeight, setIsHeight] = useState();
 
     const SubMenuHeight = (e) =>{ 
@@ -155,7 +158,7 @@ function Nav() {
 }
     const [isActive, setIsActive] = useState(-1); 
     const [isActive2, setIsActive2] = useState(false)
-    const [isActive3, setIsActive3] = useState(false) 
+    
     // 큰따음표 를 사용하면 문자열 그냥 사용하면 false
     const subData = {
         company: [
@@ -307,8 +310,9 @@ function Nav() {
                 <NavMember>
                     <ul>
                         <li>
-                            <NavLink to="/login">
-                                <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>로그인
+                            <NavLink to={userState.data?.nickname ? "/logout" : "/login"}>
+                                <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>{userState.data?.nickname ? "로그아웃" : "로그인"}
+                                {/* 값이 없더라도 출력시키는 ? 코드 */}
                             </NavLink>
                         </li>
                         <li>
@@ -343,7 +347,8 @@ function Nav() {
                     <ul>
                         <li>
                             <NavLink to="/login">
-                                <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>로그인
+                                <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>{userState.data?.nickname ? "로그아웃" : "로그인"}
+                                {/* 값이 없더라도 출력시키는 ? 코드 */}
                             </NavLink>
                         </li>
                         <li>

@@ -11,6 +11,7 @@ import Mnav from "./components/Mnav";
 import Member from "./pages/Member";
 import Login from "./pages/Login";
 import Example from "./example/Example";
+import Logout from "./pages/Logout";
 
 
 
@@ -56,18 +57,22 @@ function Inner(){
   
   const theme = useSelector(state => state.dark)
   const DarkMode = theme === "light" ? light : dark;
-  console.log(theme)
+  const userState = useSelector(state => state.user)
+  console.log(userState)
   
   return(
   <ThemeProvider theme={DarkMode}>
+
         <Globalstyle />
-          <Nav />
+          <Nav userState={userState} />
            <Aside />
              <Routes>
-                 {/* <Route path="/" element={<Main />}></Route> */}
-                 <Route path="/" element={<Example />}></Route>
+                  <Route path="/" element={<Main />}></Route>
+                 {/* <Route path="/example" element={<Example />}></Route> */}
                  <Route path="/member" element={<Member />}></Route>
                  <Route path="/login" element={<Login />}></Route>
+                 <Route path="/logout" element={<Logout />}></Route>
+
     
             {/* / 후 뒤에 주소가 붙으면 ...에 주소를 보여주세요 */}
              {/* 홈페이지 딱 열었을때 먼저 보여줄 페이지"/" " */}

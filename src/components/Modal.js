@@ -2,6 +2,9 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react'
 import styled from 'styled-components';
+import Member from '../pages/Member';
+import Login from '../pages/Login';
+import Logout from '../pages/Logout';
 
 
 
@@ -39,24 +42,24 @@ const Button =styled.button`
 
 `
 
-function Modal() {
+function Modal({error, onClose, Logout}) {
     
-    const [isModal, setIsModal] = useState(false);
+   
 
   return (
     <>
      {
       // isModal 이 true 일때만 이 값을 보여주세요 &&
-         isModal && 
+        //  isModal && 
       <ModalBackground>
       <ModalContent>
           <FontAwesomeIcon icon={faTriangleExclamation} />
-          <p>{}</p>
-          <Button onClick={()=>{setIsModal(!isModal)}}>확인</Button>
+          <p>{error}</p>
+          <Button onClick={onClose}>확인</Button>
       </ModalContent>
     </ModalBackground>
     }
-    
+    {/* 컴포넌트를 분리해서  관리하면 편함 html 속성 처럼 넘기면 됨 */}
     </>
   )
 }

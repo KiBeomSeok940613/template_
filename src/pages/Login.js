@@ -5,6 +5,14 @@ import styled from 'styled-components'
 import { firebaseAuth, signInWithEmailAndPassword } from '../firebase'
 import {useNavigate} from 'react-router-dom'
 import { FirebaseError } from 'firebase/app'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import { collection, doc, getDoc, getFirestore } from 'firebase/firestore'
+import { useDispatch } from 'react-redux'
+import { logIn, loggedIn } from '../store'
+// collection, doc, getFirestore 유저정보를 스토리지에 저장하기위해 import 함
+
+
 
 
 const Container =styled.div`
@@ -80,8 +88,11 @@ function Login() {
   const [email, setEmail] = useState('');
  const [password, setPassword] = useState('');
  const [error, setError] = useState('');
+ const [eye, setEye] = useState(false) 
 // const history = useHistory();
-const navigate = useNavigate()
+const navigate = useNavigate();
+const dispatch = useDispatch();
+
 
 const errorMsg = (errorCode) => {
   const firebaseError = {
@@ -107,8 +118,28 @@ const LoginForm = async (e) =>{
  try{
     const userLogin = await signInWithEmailAndPassword (firebaseAuth, email ,password);
     // console.log(userLogin)
+     alert("로그인 되었습니다.")
+    
+    
     const user = userLogin.user;
-    console.log(user)
+     console.log(user)
+    sessionStorage.setItem("users", user.uid)
+    dispatch(logIn(user.uid))
+   
+    // logIn import 필수
+    // 콘솔로그 찍어놔야 로그가뜸
+    
+    const userDoc = doc(collection(getFirestore(),"users"),user.uid)
+    const userDocSnapshot =await getDoc(userDoc)
+    // 국룰 Snapshot doc=document 줄임말 getDoc 도 import
+    // console.log(userDocSnapshot.data())
+    if(userDocSnapshot.exists()){
+      const userData = userDocSnapshot.data();
+      dispatch(loggedIn(userData));
+      console.log(userData)
+      navigate(-1);
+      
+    }
  }catch(error){
     setError(errorMsg(error.code));
     console.log(error.code)
@@ -122,7 +153,10 @@ const LoginForm = async (e) =>{
         
         <Title>로그인</Title>
         {email} {password}
-        <form onSubmit={LoginForm}>          
+        <form onSubmit={LoginForm}>  
+                {/* form 으로 데이터를 전송했을땐 그정보를 다 체크해줌  */}
+                {/* form 과 온클릭의 차이는 패스워드 에선 엔터가 치면 먹히거나 안먹히거나 차이 */}
+                {/* 로그인을 하면 실정보가 나오는데  */}
           <InputWrapper>
             <Input type='email' className='email' placeholder='이메일' onChange={(e)=>{
               setEmail(e.target.value)

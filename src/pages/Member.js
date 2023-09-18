@@ -86,6 +86,8 @@ function Member() {
     setEye(newEye)
     //  그리고 그 값을 쓰기 전용인 setEye에 새로운 배열값을 저장한다.
   }
+
+  
   const PhoneNumber = (e) =>{
     
     let value = e.target.value;
@@ -161,12 +163,16 @@ function Member() {
           nickname,
           phone
         }
+       
 
         await setDoc(doc(getFirestore(), "users", user.uid), userProfile)
+        // uid 고유번호 (주민번호 같은 느낌)
 
         alert("회원가입이 완료 되었습니다.");
         navigate('/');
       
+      
+         // 여기서 정보를 저장해둠 
       }catch(error){
         setError(errorMsg(error.code))
         setIsModal(!isModal)
@@ -177,16 +183,19 @@ function Member() {
   }
 
   return (
-    <>
-    isModal &&
-    <Modal />
+     <>
+     {
+      isModal &&
+      <Modal error={error} onClose={()=>[setIsModal(false)]} />
+     }
     
+  
     <Container>
       <SignUp>
         <Title>회원가입</Title> 
         
         <Input  Value={name} onChange={(e) => {setName(e.target.value)}}type='text' className='name' placeholder='이름'/>
-        <Input Value={nickname} onChange={(e) => {setName(e.target.value)}} type='email' className='email' placeholder='닉네임'/>
+        <Input Value={nickname} onChange={(e) => {setNickname(e.target.value)}} type='email' className='email' placeholder='닉네임'/>
         <Input onInput={PhoneNumber} maxLength={13}  type='text' className='phone' placeholder='전화번호'/>
         <Input type='email' className='email' onChange={(e)=>{
           setEmail(e.target.value)}} placeholder='이메일'/>
@@ -197,8 +206,8 @@ function Member() {
             }}/>
         </Password>
         <Password>
-                <Input type={eye[0] ? "text" : "password"}  onChange={(e)=>{setPasswordConfirm(e.target.value)}} className='confirm_password' placeholder='비밀번호 확인' />
-                <FontAwesomeIcon icon={eye[0] ? faEye : faEyeSlash} onClick={()=> toggleEye(0)}/>
+                <Input type={eye[1] ? "text" : "password"}  onChange={(e)=>{setPasswordConfirm(e.target.value)}} className='confirm_password' placeholder='비밀번호 확인' />
+                <FontAwesomeIcon icon={eye[1] ? faEye : faEyeSlash} onClick={()=> toggleEye(1)}/>
         </Password> 
         <Button onClick={signUp}>가입</Button>
       </SignUp>
