@@ -3,7 +3,7 @@ import React,{ useState } from 'react'
 // useState funtion 밑에 // 정보를 받을때 useState
 import styled from 'styled-components'
 import { firebaseAuth, signInWithEmailAndPassword } from '../firebase'
-import {useNavigate} from 'react-router-dom'
+import {NavLink, useNavigate} from 'react-router-dom'
 import { FirebaseError } from 'firebase/app'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
@@ -54,6 +54,23 @@ const Input =styled.input`
 const InputWrapper = styled.div`
     position: relative;
     margin-bottom: 20px;
+    &:last-child{
+      margin-bottom: 0; margin-top: 20px;
+      justify-content: flex-end;
+      display: flex;
+      column-gap: 20px;
+      a{
+        background-color: #40e0de;
+        font-size: 14px;
+        text-align: center; padding: 5px 20px;
+        border-radius: 5px;
+        color: #fff;
+        &:last-child{
+          background-color: #036;
+        }
+      }
+    }
+    /* 마지막 요소 */
   input:focus + label,
   input:not(:placeholder-shown )+ label{
     top: 4px;
@@ -171,7 +188,11 @@ const LoginForm = async (e) =>{
           </InputWrapper>
           <Button>로그인</Button>
         </form>
-        <p>{error}</p>
+           <InputWrapper>
+            <NavLink to='/findemail'>이메일/비밀번호 재설정</NavLink>
+            <NavLink to='/member'>회원가입</NavLink>
+           </InputWrapper>
+       
       </SignUp>
     </Container>
     

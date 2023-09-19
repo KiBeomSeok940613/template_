@@ -2,6 +2,7 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { act } from "react-dom/test-utils";
 
 // 더 만드려면  let createslice 를 추가로 만들어야함
+// 
 let user =createSlice({
         name: "user",
         initialState :{

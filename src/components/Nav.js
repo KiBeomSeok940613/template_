@@ -1,4 +1,4 @@
-import { faArrowRightFromBracket, faChevronDown, faLock, faRotate, faUser,  } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRightFromBracket, faChevronDown, faLock, faRotate, faUser, faUserPen,  } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -315,11 +315,20 @@ function Nav({userState}) {
                                 {/* 값이 없더라도 출력시키는 ? 코드 */}
                             </NavLink>
                         </li>
+                        {
+                            userState.data?.nickname ?
                         <li>
+                            <NavLink to="/modify">
+                                <FontAwesomeIcon icon={faUserPen}></FontAwesomeIcon>정보수정
+                            </NavLink>
+                        </li>
+                            :                      
+                        <li>                                                                      
                             <NavLink to="/member">
                                 <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>회원가입
                             </NavLink>
-                        </li>
+                        </li>                           
+                         }
                     </ul>
                 </NavMember>
 

@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import Modal from '../components/Modal'
+import { useDispatch, useSelector } from 'react-redux'
+import { logIn, loggedIn } from '../store'
 
 
 
@@ -70,12 +72,13 @@ function Member() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [nickname, setNickname] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState('');
   const [eye, setEye] = useState([0,0]);
   const [isModal, setIsModal] = useState(false);
   // 0번은 false 1번은 true
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const toggleEye = (index) =>{
     const newEye = [...eye];
@@ -95,10 +98,10 @@ function Member() {
     e.target.value = e.target.value.replace(/[^0-9]/g, '').replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3").replace(/-{1,2}$/g, "");
 
     
-    setPhone(value)
+    setPhoneNumber(value)
   }
   const errorMsg = (errorCode) =>{
-    const firebaseError = {
+    const firebaseError = { 
       'auth/admin-restricted-operation' : "빈 데이터가 있다.",
       'auth/email-already-in-use' : "이미 사용중인 이메일 주소.",
       'auth/invlid-email' : "유효하지 않은 이메일 주소.",
@@ -130,7 +133,7 @@ function Member() {
         errorMessage = "이름"
       }else if(nickname.length === 0){
         errorMessage = "닉네임";
-      }else if(!isValidPhone(phone)){
+      }else if(!isValidPhone(phoneNumber)){
         setError("유효한 전화번호를 입력해주세요");
         setIsModal(!isModal)
         return;
@@ -161,13 +164,17 @@ function Member() {
         const userProfile = {
           name,
           nickname,
-          phone
+          phoneNumber,
+          email
         }
        
-
+        
         await setDoc(doc(getFirestore(), "users", user.uid), userProfile)
-        // uid 고유번호 (주민번호 같은 느낌)
-
+        // uid 고유번호 (주민번호 같은 느낌)    
+      
+        sessionStorage.setItem("users", user.uid)
+        dispatch(logIn(user.uid));
+        
         alert("회원가입이 완료 되었습니다.");
         navigate('/');
       
@@ -181,6 +188,8 @@ function Member() {
       
     
   }
+  const userState = useSelector(state => state.user)
+    console.log(userState.loggedIn)
 
   return (
      <>
@@ -188,8 +197,9 @@ function Member() {
       isModal &&
       <Modal error={error} onClose={()=>[setIsModal(false)]} />
      }
-    
-  
+    {
+      userState.loggedIn ? <Modal error="이미 로그인 중입니다." onClose={()=>{navigate('/')}}/> : 
+      // 앞에 ! 를 붙히면 false
     <Container>
       <SignUp>
         <Title>회원가입</Title> 
@@ -210,9 +220,11 @@ function Member() {
                 <FontAwesomeIcon icon={eye[1] ? faEye : faEyeSlash} onClick={()=> toggleEye(1)}/>
         </Password> 
         <Button onClick={signUp}>가입</Button>
-      </SignUp>
-    </Container>
     
+      </SignUp>
+
+    </Container>
+      } 
     </>
   )
 }
