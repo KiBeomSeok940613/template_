@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Globalstyle from "./components/Globalstyle";
  import Main from "./pages/Main";
 import Aside from "./components/Aside";
@@ -16,6 +16,16 @@ import { useEffect } from "react";
 import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
 import Findemail from "./pages/Findemail";
 import Modify from "./pages/Modify";
+import Write from "./pages/Write";
+import Service from "./pages/Service";
+import Online from "./pages/service/Online";
+import Galley from "./pages/service/Galley";
+import Qna from "./pages/service/Qna";
+import Notice from "./pages/service/Notice";
+import Ckeditor from "./components/Ckeditor";
+import View from "./pages/View";
+import { useState } from "react";
+import Modal from "./components/Modal";
 
 
 
@@ -67,6 +77,10 @@ function Inner(){
   const dispatch = useDispatch();
   const uid = sessionStorage.getItem("users");
   console.log(uid)
+  if(uid){
+    dispatch(logIn(uid));
+  }
+  // 로그인 되고나서 새로고침하면 null값으로 떠서 
   useEffect(()=>{
 
     const fetchUser = async () => {
@@ -101,6 +115,9 @@ console.log(docSnapShot)
 
   }, [dispatch, uid])
   // 로딩되고 기능이 실행됨 [] 대괄호 안에  변수값을 입력하면 여러번 실행 됨 
+
+  const [isModal, setIsModal] = useState(true)
+  const navigate = useNavigate()
   return(
   <ThemeProvider theme={DarkMode}>
 
@@ -115,6 +132,17 @@ console.log(docSnapShot)
                  <Route path="/logout" element={<Logout />}></Route>
                  <Route path="/modify" element={<Modify />}></Route>
                  <Route path="/findemail" element={<Findemail />}></Route>
+                 <Route path="/write/:board" element={<Write />}></Route>           
+                 <Route path="/view/:board/view" element={<View />}></Route>           
+                 <Route path="/view/:board/" element={isModal && <Modal error='유효하지 않은 경로 입니다.' onClose={()=>{navigate('/')}} />}></Route>           
+                 
+                 <Route path="/service" element={<Service />}>
+                
+                  <Route path="notice" element={<Notice />}></Route>
+                  <Route path="online" element={<Online />}></Route>
+                  <Route path="galley" element={<Galley />}></Route>
+                  <Route path="qna" element={<Qna />}></Route>
+                 </Route>
 
     
             {/* / 후 뒤에 주소가 붙으면 ...에 주소를 보여주세요 */}

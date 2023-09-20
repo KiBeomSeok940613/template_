@@ -102,13 +102,13 @@ function Member() {
   }
   const errorMsg = (errorCode) =>{
     const firebaseError = { 
-      'auth/admin-restricted-operation' : "빈 데이터가 있다.",
+      'auth/admin-restricted-operation' :  "빈 데이터가 있다.",
       'auth/email-already-in-use' : "이미 사용중인 이메일 주소.",
       'auth/invlid-email' : "유효하지 않은 이메일 주소.",
       'auth/operation-not-allowed' : "이메일/비밀번호 계정이 비활성화 되어 있습니다.",
       'auth/weak-password' : "너무 짧은 비밀번호를 사용하였습니다(6자리).",
     }
-    return firebaseError[errorCode] || "알 수 없는 에러가 발생하셨습니다."
+    return firebaseError[errorCode] || "알 수없는 에러가 발생하셨습니다."
   }
   const isValidPhone = (phone) =>{
     const regex = /^01[0-9]-[0-9]{3,4}-[0-9]{4}$/
