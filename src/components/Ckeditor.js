@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import styled from 'styled-components';
-import { addDoc, collection, getFirestore, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { faList, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Modal from './Modal';
+import { useEffect } from 'react';
 
 const ButtonWrap = styled.div`
     display: flex;
@@ -32,14 +33,21 @@ const Button = styled.div`
     svg{margin-right: 12px;}
 `
 
-function Ckeditor({title}) {
+function Ckeditor({title, postData}) {
     const memberProfile = useSelector(state => state.user);
     const[isModal,setIsModal]=useState(false);
     const navigate=useNavigate();
     const[writeData,setWriteData]=useState("");
     // console.log(memberProfile)
     const[message,setMessage] = useState("");
-    const {board} =useParams()
+    const {board, view} = useParams()
+
+    useEffect(()=>{
+        if(postData){
+            setWriteData(postData.content);
+
+        }
+    }, [postData])
     // alert(board)
     const dataSubmit = async ()=>{
         if(title.length === 0){
@@ -51,18 +59,29 @@ function Ckeditor({title}) {
             return;
         }
         try{
-            await addDoc(collection(getFirestore(),board),{
-                title : title,
-                content: writeData,
-                view: 1,
-                uid:memberProfile.uid,
-                name:memberProfile.data.name,
-                email:memberProfile.data.email,
-                nickname:memberProfile.data.nickname,
-                timestamp:serverTimestamp()
-                //timestamp는 서버의 타임스탬프가 함수형태로 들어감
-
-            })
+            if(board && view){
+                const postRef = doc(getFirestore(), board, view);
+                await updateDoc(postRef, {
+                    title: title,
+                    content: writeData
+                })
+                alert('게시글이 성공적으로 수정 되었습니다.')
+                
+            }else{
+                await addDoc(collection(getFirestore(),board),{
+                    title : title,
+                    content: writeData,
+                    view: 1,
+                    uid:memberProfile.uid,
+                    name:memberProfile.data.name,
+                    email:memberProfile.data.email,
+                    nickname:memberProfile.data.nickname,
+                    timestamp:serverTimestamp()
+                    //timestamp는 서버의 타임스탬프가 함수형태로 들어감
+    
+                })
+            }
+            
             alert("게시물이 성공적으로 등록 되었습니다. ")
             navigate(`/service/${board}`)
             //문서를 추가할거다 => 파이어스토어 데이터를 인증하고 => 내가 접속한 데이터 베이스 추가한다는 의미임

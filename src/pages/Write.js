@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Modal from '../components/Modal';
 import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
 
 
 const Container = styled.div`
@@ -96,15 +98,40 @@ const ContentLabel = styled.p`
 function Write() {
 
   const [txtTitle, setTxtTitle] = useState('');
-  const {board} = useParams()
+  const {board, view} = useParams()
+  
   // useParams 데이터 출력 해주는 코드
   // alert(board)
 
   const boards = ["notice", 'online', 'qna', 'gallery'];
-  const [isModal, setIsModal] = useState(true);
+  const [isModal, setIsModal] = useState(view ? false : true);
   const navigate = useNavigate();
   const memberProfile = useSelector(state => state.user);
   // console.log(memberProfile)
+  const [postData, setPostData] = useState('')
+  const [message, setMessage] = useState('');
+
+  useEffect (()=>{
+    if(board && view){
+      const fetchData = async () => {
+        const postRef = doc(getFirestore(), board ,view);
+        const postSnapshot = await getDoc(postRef)
+        if(postSnapshot.exists()){
+          setIsModal(false)
+        setPostData(postSnapshot.data())
+        setTxtTitle(postSnapshot.data().title)
+        }else{
+            setIsModal(true)
+            setMessage("해당 문서가 존재하지 않습니다.")
+            
+        }
+        
+    }
+    fetchData();
+    }
+
+  }, [board,view])
+  console.log(board,view)
 
 // 로그인 상태가 아니라면 팅궈내는 
   if(!memberProfile.loggedIn){
@@ -123,7 +150,7 @@ function Write() {
     return(
       <>
     {
-      isModal && <Modal error='잘못된 게시판 입니다.' onClose={()=>{setIsModal(false); navigate('/')}}></Modal>  
+      isModal &&  <Modal error='잘못된 게시판 입니다.' onClose={()=>{setIsModal(false); navigate('/')}}></Modal>  
     }
         
 
@@ -133,9 +160,12 @@ function Write() {
 
 
   return (
+    <>
+    {
+        isModal && view && <Modal error='해당 문서가 잘못 되었습니다.' onClose={()=>{setIsModal(false); navigate('/')}}></Modal>  
 
-    
-    <Container>
+    }
+     <Container>
       <InnerContainer>
         <Header>
           <Heading>글쓰기</Heading>
@@ -145,16 +175,21 @@ function Write() {
         <ContentWrapper>
           <ContentInner>
             <Title>제목</Title>
-            <TextInput type="text" onChange={(e)=>{setTxtTitle(e.target.value)}} />
+            <TextInput defaultValue={postData && postData.title} type="text" onChange={(e)=>{setTxtTitle(e.target.value)}} />
           </ContentInner>
           <ContentInputWrapper>
             <ContentLabel>내용</ContentLabel>
-            <Ckeditor title={txtTitle}/>
+            <Ckeditor title={txtTitle} postData={postData}/>
           </ContentInputWrapper>
         </ContentWrapper>
       </InnerContainer>
     </Container>
   
+    
+    </>
+
+    
+   
   );
 }
 

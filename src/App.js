@@ -26,6 +26,7 @@ import Ckeditor from "./components/Ckeditor";
 import View from "./pages/View";
 import { useState } from "react";
 import Modal from "./components/Modal";
+import NotPage from "./pages/NotPage";
 
 
 
@@ -77,11 +78,12 @@ function Inner(){
   const dispatch = useDispatch();
   const uid = sessionStorage.getItem("users");
   console.log(uid)
-  if(uid){
-    dispatch(logIn(uid));
-  }
+ 
   // 로그인 되고나서 새로고침하면 null값으로 떠서 
   useEffect(()=>{
+    if(uid){
+      dispatch(logIn(uid));
+    }
 
     const fetchUser = async () => {
       if(!uid) return;
@@ -131,10 +133,11 @@ console.log(docSnapShot)
                  <Route path="/login" element={<Login />}></Route>
                  <Route path="/logout" element={<Logout />}></Route>
                  <Route path="/modify" element={<Modify />}></Route>
-                 <Route path="/findemail" element={<Findemail />}></Route>
+                 <Route path="/findemail" element={<Findemail />}></Route>  
                  <Route path="/write/:board" element={<Write />}></Route>           
-                 <Route path="/view/:board/view" element={<View />}></Route>           
-                 <Route path="/view/:board/" element={isModal && <Modal error='유효하지 않은 경로 입니다.' onClose={()=>{navigate('/')}} />}></Route>           
+                 <Route path="/view/:board/:view" element={<View />}></Route>           
+                 <Route path="/view/:board/" element={isModal && <Modal error='유효하지 않은 경로 입니다.' onClose={()=>{navigate('/')}} />}></Route>   
+                 <Route path="/edit/:board/:view" element={<Write />}></Route>           
                  
                  <Route path="/service" element={<Service />}>
                 
@@ -147,7 +150,10 @@ console.log(docSnapShot)
     
             {/* / 후 뒤에 주소가 붙으면 ...에 주소를 보여주세요 */}
              {/* 홈페이지 딱 열었을때 먼저 보여줄 페이지"/" " */}
+             <Route path="/*" element={<NotPage />}></Route>
+             {/* 404 페이지는 무조건 맨밑에 에러코드 몇개는 이해 해야함 404 :페이지가 없다 403 :"폴더가 없다" 500: 서버가 잠긴 에러 */}
             </Routes>
+
     </ThemeProvider>
   )
 }

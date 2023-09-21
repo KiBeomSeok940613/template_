@@ -10,6 +10,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import { collection, doc, getDoc, getFirestore } from 'firebase/firestore'
 import { useDispatch } from 'react-redux'
 import { logIn, loggedIn } from '../store'
+import { useEffect } from 'react'
 // collection, doc, getFirestore 유저정보를 스토리지에 저장하기위해 import 함
 
 
@@ -141,7 +142,9 @@ const LoginForm = async (e) =>{
     const user = userLogin.user;
      console.log(user)
     sessionStorage.setItem("users", user.uid)
-    dispatch(logIn(user.uid))
+
+    
+    
    
     // logIn import 필수
     // 콘솔로그 찍어놔야 로그가뜸
