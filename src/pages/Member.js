@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { createUserWithEmailAndPassword, firebaseAuth, signInWithEmailAndPassword } from '../firebase'
-import{doc, setDoc, getFirestore} from 'firebase/firestore'
+import{doc, setDoc, getFirestore, getDoc, updateDoc} from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import Modal from '../components/Modal'
 import { useDispatch, useSelector } from 'react-redux'
 import { logIn, loggedIn } from '../store'
-
+import Modify from './Modify'
+import { onAuthStateChanged } from 'firebase/auth'
 
 
 
@@ -79,7 +80,44 @@ function Member() {
   // 0번은 false 1번은 true
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [userUid, setUserUid] = useState("");
 
+  const initialMode = window.location.pathname.includes ("member");
+  useEffect(()=>{
+    if(!initialMode){
+      firebaseAuth.onAuthStateChanged((user) =>{
+        if(user){
+          setUserUid(user.uid);
+        }
+        
+
+      })
+
+    }
+
+  }, [initialMode])
+  useEffect(()=>{
+    if(!initialMode && userUid){
+      const fetchUserData = async () => {
+        const userRef = doc (getFirestore(), "users", userUid);
+        const userSnap = await getDoc (userRef);
+       if(userSnap.exists()){
+        const data = userSnap.data();
+        setName(data.name);
+        setNickname(data.nickname);
+        setPhoneNumber(data.phoneNumber);
+        setEmail(data.email)
+       }
+      }
+      fetchUserData();
+      
+    }
+
+    
+  },[initialMode, userUid])
+  
+  
+  
   const toggleEye = (index) =>{
     const newEye = [...eye];
     // 원래있던 eye 의 배열값을 복사해 배열을 벗긴다.
@@ -141,11 +179,11 @@ function Member() {
         setError("유효한 이메일 주소를 입력해주세요");
         setIsModal(!isModal)
         return;
-      }else if(password.length === 0){
+      }else if(password.length === 0 && initialMode){
         errorMessage("비밀번호")
-      }else if(passwordConfirm.length === 0){
+      }else if(passwordConfirm.length === 0 && initialMode){
         errorMessage = "비밀번호 확인";
-      }else if(password !== passwordConfirm){
+      }else if(password !== passwordConfirm && initialMode){
         setError("비밀번호가 일치하지 않습니다.")
         setIsModal(!isModal)
         return;
@@ -158,8 +196,7 @@ function Member() {
       
       
       try{
-        const {user} = await  createUserWithEmailAndPassword
-        (firebaseAuth, email, password);
+      
 
         const userProfile = {
           name,
@@ -169,6 +206,9 @@ function Member() {
         }
        
         
+       if(initialMode){
+        const {user} = await  createUserWithEmailAndPassword
+        (firebaseAuth, email, password);
         await setDoc(doc(getFirestore(), "users", user.uid), userProfile)
         // uid 고유번호 (주민번호 같은 느낌)    
       
@@ -176,6 +216,17 @@ function Member() {
         dispatch(logIn(user.uid));
         
         alert("회원가입이 완료 되었습니다.");
+       }else{
+        if(userUid){
+          const userRef = doc(getFirestore(), "users", userUid);
+          await updateDoc(userRef, userProfile);
+          alert("정보 수정이 완료 되었습니다.")
+        }else{
+          setError("회원 정보가 없습니다.")
+          setIsModal(!isModal)
+          return;
+        }
+       }
         navigate('/');
       
       
@@ -183,7 +234,7 @@ function Member() {
       }catch(error){
         setError(errorMsg(error.code))
         setIsModal(!isModal)
-        console.log(error.code)
+       
       }
       
     
@@ -198,19 +249,23 @@ function Member() {
       <Modal error={error} onClose={()=>[setIsModal(false)]} />
      }
     {
-      userState.loggedIn ? <Modal error="이미 로그인 중입니다." onClose={()=>{navigate('/')}}/> : 
+      userState.loggedIn && initialMode ? <Modal error="이미 로그인 중입니다." onClose={()=>{navigate('/modify')}}/> : 
       // 앞에 ! 를 붙히면 false
     <Container>
       <SignUp>
-        <Title>회원가입</Title> 
+       
+        <Title>회원가입</Title>
         
-        <Input  Value={name} onChange={(e) => {setName(e.target.value)}}type='text' className='name' placeholder='이름'/>
-        <Input Value={nickname} onChange={(e) => {setNickname(e.target.value)}} type='email' className='email' placeholder='닉네임'/>
-        <Input onInput={PhoneNumber} maxLength={13}  type='text' className='phone' placeholder='전화번호'/>
-        <Input type='email' className='email' onChange={(e)=>{
+        <Input  defaultValue={name} onChange={(e) => {setName(e.target.value)}}type='text' className='name' placeholder='이름'/>
+        <Input defaultValue={nickname} onChange={(e) => {setNickname(e.target.value)}} type='text' className='nickname' placeholder='닉네임'/>
+        <Input defaultValue={phoneNumber} onInput={PhoneNumber} maxLength={13}  type='text' className='phone' placeholder='전화번호'/>
+        <Input defaultValue={email} type='email' className='email' onChange={(e)=>{
           setEmail(e.target.value)}} placeholder='이메일'/>
-        <Password>
-            <Input onChange={(e) => {setPassword(e.target.value)}} type={eye[0] ? "text" : "password"} className='password' placeholder='비밀번호'/>
+        {
+          initialMode && 
+          <>
+          <Password>
+            <Input defaultValue={password} onChange={(e) => {setPassword(e.target.value)}} type={eye[0] ? "text" : "password"} className='password' placeholder='비밀번호'/>
             <FontAwesomeIcon icon={eye[0] ? faEye : faEyeSlash} onClick={()=>{
               toggleEye(0)
             }}/>
@@ -219,6 +274,8 @@ function Member() {
                 <Input type={eye[1] ? "text" : "password"}  onChange={(e)=>{setPasswordConfirm(e.target.value)}} className='confirm_password' placeholder='비밀번호 확인' />
                 <FontAwesomeIcon icon={eye[1] ? faEye : faEyeSlash} onClick={()=> toggleEye(1)}/>
         </Password> 
+          </>
+        }
         <Button onClick={signUp}>가입</Button>
     
       </SignUp>

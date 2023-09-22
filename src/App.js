@@ -71,13 +71,11 @@ function Inner(){
   
   const theme = useSelector(state => state.dark)
   const DarkMode = theme === "light" ? light : dark;
-  const userState = useSelector(state => state.user)
-  console.log(userState)
-
+  const userState = useSelector(state => state.user);
 
   const dispatch = useDispatch();
   const uid = sessionStorage.getItem("users");
-  console.log(uid)
+ 
  
   // 로그인 되고나서 새로고침하면 null값으로 떠서 
   useEffect(()=>{
@@ -132,7 +130,7 @@ console.log(docSnapShot)
                  <Route path="/member" element={<Member />}></Route>
                  <Route path="/login" element={<Login />}></Route>
                  <Route path="/logout" element={<Logout />}></Route>
-                 <Route path="/modify" element={<Modify />}></Route>
+                 <Route path="/modify" element={<Member />}></Route>
                  <Route path="/findemail" element={<Findemail />}></Route>  
                  <Route path="/write/:board" element={<Write />}></Route>           
                  <Route path="/view/:board/:view" element={<View />}></Route>           

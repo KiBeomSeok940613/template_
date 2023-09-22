@@ -172,7 +172,7 @@ const LoginForm = async (e) =>{
       <SignUp>
         
         <Title>로그인</Title>
-        {email} {password}
+        
         <form onSubmit={LoginForm}>  
                 {/* form 으로 데이터를 전송했을땐 그정보를 다 체크해줌  */}
                 {/* form 과 온클릭의 차이는 패스워드 에선 엔터가 치면 먹히거나 안먹히거나 차이 */}
