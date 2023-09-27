@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import styled from 'styled-components';
-import { addDoc, collection, doc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getFirestore,  serverTimestamp, updateDoc } from 'firebase/firestore';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { faList, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Modal from './Modal';
 import { useEffect } from 'react';
+import { upload } from '@testing-library/user-event/dist/upload';
+import {getStorage, ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage'
+
+
 
 const ButtonWrap = styled.div`
     display: flex;
@@ -40,7 +44,10 @@ function Ckeditor({title, postData}) {
     const[writeData,setWriteData]=useState("");
     // console.log(memberProfile)
     const[message,setMessage] = useState("");
-    const {board, view} = useParams()
+    const {board, view} = useParams();
+    const [editorInstance, setEditorInstance] = useState(null);
+    const [fileUrl, setFileUrl] = useState("");
+    
 
     useEffect(()=>{
         if(postData){
@@ -68,18 +75,25 @@ function Ckeditor({title, postData}) {
                 alert('게시글이 성공적으로 수정 되었습니다.')
                 
             }else{
-                await addDoc(collection(getFirestore(),board),{
-                    title : title,
-                    content: writeData,
-                    view: 1,
-                    uid:memberProfile.uid,
-                    name:memberProfile.data.name,
-                    email:memberProfile.data.email,
-                    nickname:memberProfile.data.nickname,
-                    timestamp:serverTimestamp()
-                    //timestamp는 서버의 타임스탬프가 함수형태로 들어감
+                const fileInput = document.querySelector("#file").files[0];
+                // files[0] = 파일을 가져오는 기본 문법
+                console.log(fileInput);
+                if(fileInput){
+                    uploadToFirebase(fileInput)
+                }
+                // await addDoc(collection(getFirestore(),board),{
+                //     title : title,
+                //     content: writeData,
+                //     view: 1,
+                //     uid:memberProfile.uid,
+                //     name:memberProfile.data.name,
+                //     email:memberProfile.data.email,
+                //     nickname:memberProfile.data.nickname,
+                //    file : fileUrl,
+                //     timestamp:serverTimestamp()
+                //     //timestamp는 서버의 타임스탬프가 함수형태로 들어감
     
-                })
+                // })
             }
             
             alert("게시물이 성공적으로 등록 되었습니다. ")
@@ -91,6 +105,40 @@ function Ckeditor({title, postData}) {
         }catch(error){
             setIsModal(!isModal);
             setMessage(error);
+        }
+    }
+
+    const uploadToFirebase = async (file) => {
+        const storageRef = ref (getStorage(), 'images/' + file.name);
+        const upload = uploadBytesResumable (storageRef, file)
+
+        return new Promise((resolve, reject) =>{
+            upload.on ('state_changed',
+            (snapshot) =>{
+                
+            },
+            (error) =>{
+                reject(error)
+            },
+            ()=>{
+                getDownloadURL(upload.snapshot.ref).then((result)=>{
+                    resolve(result)
+                    setFileUrl(result);
+                })            
+            }
+            )
+        })
+    }
+
+    function UploadAdapter(editor){
+        editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+            return {
+                upload : async () => {
+                    const file = await loader.file;
+                    const downURL = await uploadToFirebase(file);
+                    return {default : downURL}
+                }
+            }
         }
     }
 
@@ -108,8 +156,10 @@ function Ckeditor({title, postData}) {
 
                     config={{
                          placeholder: "내용을 입력하세요.",
+                         extraPlugins : [UploadAdapter]
                      }}
                     onReady={ editor => {
+                        setEditorInstance(editor)
                         // You can store the "editor" and use when it is needed.
                         console.log( 'Editor is ready to use!', editor );
                     } }
@@ -125,6 +175,7 @@ function Ckeditor({title, postData}) {
                         console.log( 'Focus.', editor );
                     } }
                 />
+        <input type='file' id = 'file'></input>
                 <ButtonWrap>
                     <Button ><Link to="/service/notice"><FontAwesomeIcon icon={faList}/>목록</Link></Button>
                     <Button onClick={dataSubmit} ><FontAwesomeIcon icon={faPen} />완료</Button>

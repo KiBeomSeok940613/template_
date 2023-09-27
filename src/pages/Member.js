@@ -115,6 +115,12 @@ function Member() {
 
     
   },[initialMode, userUid])
+    
+  
+  // 제일 마지막에 실행되는 것 , 실행되는 타이밍을 정해준다. [상태 값을 지정해서 dependency]
+  // 폴더 안에 파일찾는 것이라 이해하기.
+  // set은 전역변수의 단점을 보안하기 위해 다른 함수 및 전역에 사용하기 위해 변경하는 값. useState
+
   
   
   
@@ -211,7 +217,7 @@ function Member() {
         (firebaseAuth, email, password);
         await setDoc(doc(getFirestore(), "users", user.uid), userProfile)
         // uid 고유번호 (주민번호 같은 느낌)    
-      
+      // doc (문서) - getFirestore()-인증 "users" - 컬렉션 종류 중 하나, userUid -  
         sessionStorage.setItem("users", user.uid)
         dispatch(logIn(user.uid));
         
@@ -254,7 +260,7 @@ function Member() {
     <Container>
       <SignUp>
        
-        <Title>회원가입</Title>
+        <Title>{initialMode === true ? "로그인" : "정보수정"}</Title>
         
         <Input  defaultValue={name} onChange={(e) => {setName(e.target.value)}}type='text' className='name' placeholder='이름'/>
         <Input defaultValue={nickname} onChange={(e) => {setNickname(e.target.value)}} type='text' className='nickname' placeholder='닉네임'/>
@@ -281,7 +287,10 @@ function Member() {
       </SignUp>
 
     </Container>
-      } 
+      }   
+      {/* {
+      userState.loggedIn ? <Modal error="개인정보 수정을 할 수 없습니다." onClose={()=>{navigate('/login')}}/> : ""
+    } */}
     </>
   )
 }
