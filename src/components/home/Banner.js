@@ -5,12 +5,43 @@ import 'swiper/css'
 import 'swiper/css/pagination' ;
 import 'swiper/css/navigation' ;
 import styled from 'styled-components';
+import WOW from 'wowjs';
+import 'animate.css'
+import { useEffect } from 'react';
 
+// yarn add wow js 다운로드 후 사용 가능
 
+const  TxtData = [
+  {
+    title:"제목1",
+    desc :"부제목",
+    desc2 : "하고싶은 말..."
+  },
+  {
+    title:"제목2",
+    desc :"부제목",
+    desc2 : "하고싶은 말..."
+  },
+  {
+    title:"제목3",
+    desc :"부제목",
+    desc2 : "하고싶은 말..."
+  },
+  {
+    title:"제목4",
+    desc :"부제목",
+    desc2 : "하고싶은 말..."
+  },
+  {
+    title:"제목5",
+    desc :"부제목",
+    desc2 : "하고싶은 말..."
+  },
 
+]
 
 // 컴포넌트 하나 만든다음 스타일 컴포넌트 () 안에 넣으면 사용가능
-const styleSlide = styled(SwiperSlide)`
+const StyleSlide = styled(SwiperSlide)`
       img{
         position: relative;
         width: 100%; height: auto;
@@ -42,12 +73,25 @@ const DescContent = styled.div`
       }
 `
 function Banner() {
+
+  useEffect(()=>{
+      new WOW.WOW({
+          boxClass: 'wow',
+          AnimateClass: 'animate__animated',
+          live: false,
+          mobile : true
+
+
+      }).init();
+  }, [])
   return (
+
+    
     <>
    
       <Swiper  
-      Autoplay={{
-            delay :3000,
+      autoplay={{
+            delay : 3000,
            disableOnInteraction: false
 
         }}
@@ -56,21 +100,33 @@ function Banner() {
         pagination = {{clickable:true}}
         loop={true}
         // 무한루프
-        modules={[Autoplay, Navigation, Pagination]}>
+        modules={[Autoplay, Navigation, Pagination]}
+        // onSwiper={(Swiper)=>{
+        //   console.log(Swiper)
+        // }}
+        onSlideChange={()=>{
+         new WOW.WOW({
+          live: false
+
+         }).init()
+        }}
+        
+        >
        
       {
-      Array(5).fill().map((_,i)=>{
+      TxtData.map((e,i)=>{
         return(
           
-            <SwiperSlide key={i}><img src={`./images/img${i+1}.jpg`} alt='slide'></img>
+            <StyleSlide key={i}><img src={`./images/img${i+1}.${ i === 2 ? 'png' : 'jpg' }`}  alt='slide'/>
               
               <DescContent>
-                <h3>강조하는 제목</h3>
+                <h3 className='wow animate__fadeInDownBig' data-wow-duration="1s">{e.title}</h3>
+                <p className='wow animate__fadeInDownBig' data-wow-duration="0.3s">{e.desc}</p>
+                <p className='wow animate__fadeInDownBig' data-wow-duration="0.3s">{e.desc2}</p>
                 </DescContent>
+
                 
-                
-                
-                </SwiperSlide>
+                </StyleSlide>
           
      
         )
